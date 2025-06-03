@@ -19,6 +19,7 @@ size_t  ft_strlen(const char *str)
 
 char	*get_next_line(int fd)
 {
+    int     loop;
     int             letters_read;
     char            *buf;
     char            *full;
@@ -27,7 +28,7 @@ char	*get_next_line(int fd)
     if (fd < 0)
     	return (NULL);
 
-    // prep for full and rest joining from earlier calls for LEFTOVERs
+    // prepare for full and rest joining from earlier calls for LEFTOVERs
     full = "";
     if (!rest)
         rest = "";
@@ -38,28 +39,39 @@ char	*get_next_line(int fd)
     if (!buf)
     	return (NULL);
 
-    // Loop through, and look for \n
-    while (!ft_strchr (buf, '\n'))
+    // read the file into BUF
+    loop = 0;
+    // printf ("kaka");
+    while (!loop)
     {
-        letters_read = read (fd, buf, BUFFER_SIZE);
-        if (letters_read > 0)
+        letters_read = read (fd, buf, BUFFER_SIZE);         // read into BUF 
+
+        if (letters_read && ft_strchr (buf, '\n'))          // 1- BUF is 5 and has \n 
         {
-            if (letters_read < BUFFER_SIZE)
-            {
-                buf[letters_read] = '\0';
-                full = ft_strjoin(full, buf);
-                break;
-            }
-        	full = ft_strjoin(full, buf);
+            full = ft_strjoin (full, buf);
+            trim_assign(&full, &rest);
+            break;
         }
-        else
-            return (NULL); 
+        else if (letters_read)
+        {
+            full = ft_strjoin (full, buf);                      // NORMAL = joing full to buf
+        }
+        else if (*full && !letters_read)         // 2- BUF = 0 but FULL has "ab"
+        {
+            rest = NULL;
+            free (rest);
+            return (full);
+        }
+        else                           // 3- BUF = 0 >>> return NULL
+        {    
+            rest = NULL;
+            free (rest);
+            free (full);
+            free (buf);
+            return (NULL);
+        }    
     }
-
-    // after \n is found, 1- TRIM it and 2- send to REST as leftover
-    trim_assign(&full, &rest);
-
-    // return full
+    free (buf);
 	return (full);
 }
 
