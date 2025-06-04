@@ -3,126 +3,91 @@
 #include <stdio.h>
 #include <unistd.h>
 
-void trim_assign(char **full, char **rest);
-
-size_t  ft_strlen(const char *str)
+char	*ft_strdup(const char *s1)
 {
-    size_t  i;
+	char	*p;
+	char	*record;
+	int		len;
+
+	len = 0;
+	while (s1[len])
+		len++;
+	p = malloc((len + 1) * (size_t) sizeof(char));
+	if (!p)
+		return (NULL);
+	record = p;
+	while (*s1)
+		*p++ = *s1++;
+	*p = '\0';
+	return (record);
+}
+
+void zero_buf(char *buf)
+{
+    int     i;
 
     i = 0;
-    while (str[i])
+    while (i < BUFFER_SIZE)
     {
+        buf[i] = 0;
         i++;
     }
-    return (i);
 }
 
 char	*get_next_line(int fd)
 {
-    int     loop;
-    int             letters_read;
-    char            *buf;
-    char            *full;
-    static char     *rest;
+    char           *buf;
+    static char    *rest;
+    char           *full;
+    char           *change;
+    int            read_lines;
 
-    if (fd < 0)
-    	return (NULL);
-
-    // prepare for full and rest joining from earlier calls for LEFTOVERs
+    buf = malloc (BUFFER_SIZE * sizeof (char));
     full = "";
     if (!rest)
         rest = "";
     full = ft_strjoin(full, rest);
-
-    // new BUFFER
-    buf = malloc ((BUFFER_SIZE + 1) * sizeof (char));
-    if (!buf)
-    	return (NULL);
-
-    // read the file into BUF
-    loop = 0;
-    // printf ("kaka");
-    while (!loop)
+    read_lines = 1;
+    while (read_lines)
     {
-        letters_read = read (fd, buf, BUFFER_SIZE);         // read into BUF 
-
-        if (letters_read && ft_strchr (buf, '\n'))          // 1- BUF is 5 and has \n 
+        read_lines = read (fd, buf, BUFFER_SIZE);
+        if (!read_lines && *full)
         {
-            full = ft_strjoin (full, buf);
-            trim_assign(&full, &rest);
+            rest = NULL;
             break;
+
         }
-        else if (letters_read)
+        if (!read_lines) // in case end of file was reached
         {
-            full = ft_strjoin (full, buf);                      // NORMAL = joing full to buf
-        }
-        else if (*full && !letters_read)         // 2- BUF = 0 but FULL has "ab"
-        {
-            rest = NULL;
-            free (rest);
-            return (full);
-        }
-        else                           // 3- BUF = 0 >>> return NULL
-        {    
-            rest = NULL;
-            free (rest);
-            free (full);
             free (buf);
             return (NULL);
-        }    
+        }
+        full = ft_strjoin (full, buf);
+        if (read_lines < BUFFER_SIZE) // 1- in case end of file was inside buffer
+        {
+            full[ft_strlen(full) - (BUFFER_SIZE - read_lines)]= '\0';
+            break;
+        }
+        if (read_lines && ft_strchr (buf, '\n'))
+        {
+            rest = ft_strdup(ft_strchr (full, '\n'));
+            rest++;
+            //printf ("%ld", (ft_strchr (full, '\n') - full));
+            full [(ft_strchr (full, '\n') - full)] = '\0';
+            break;
+        }
+         zero_buf (buf);
     }
+
+
+       
+    
     free (buf);
-	return (full);
+    return (full);
+
 }
 
 void trim_assign(char **full, char **rest)
 {
-    int i;
-    int b;
-    char    *right;
-    char    *left;
-
-    // checks if pointers are caput, left[0] = '\0' or rest = '\0' or left has no \n
-    if (!full || !rest || !(*full) || !(*rest) || !ft_strchr (*full, '\n'))  
-        return ;
-
-    left = *full;
-    i = 0;
-
-    // length of left until \n
-    while (left[i] != '\0' && left[i] != '\n')
-        i++;
-
-    // puts an end to left instead of \n
-    left[i] = '\0';
-
-    // move one to start new B line
-    i++;
-
-    // get length for B line
-    b = ft_strlen(&left[i]);
-
-    // malloc space for B line
-    right = malloc (b * sizeof(char));
-    if (!right)
-        return;
-
-    // copy left from i point on left to right
-    b = 0;
-    while (left[i])
-    { 
-        right[b] = left[i];
-        i++;
-        b++;
-    }
-    right[b] = '\0';
-
-    // set pointer to right
-    *rest = right;
+    
 }
-
-
-
-
-
-
