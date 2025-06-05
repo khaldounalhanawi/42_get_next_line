@@ -91,8 +91,70 @@ int	main()
     printf("p = >%s<\n\n", j);
 	printf("j = >%s<\n\n", p);
 } */
- 
-// 1- read using buffer, and then apply stringlcat until \n\n is reached.
-// 2- store the left over after \n\n in a static temp array
-// 3- print string out.
-// 4- next time it gets called, start with the leftover and then do step 1 + 2
+/*
+char	*ft_strdup2(const char *s1)
+{
+	char	*p;
+	char	*record;
+	int		len;
+
+	len = 0;
+	while (s1[len])
+		len++;
+	p = malloc((len + 1) * (size_t) sizeof(char));
+	if (!p)
+		return (NULL);
+	record = p;
+	while (*s1)
+		*p++ = *s1++;
+	*p = '\0';
+	return (record);
+}
+
+void    extract2(char **line, char **rest)
+{
+    char    *n_line;
+    char    *temp;
+    char 	*temp2;
+
+    if (!ft_strchr (*line, '\n') || !**line)
+        return;
+    n_line = *line;
+    if (*ft_strchr(n_line, '\n') == n_line[ft_strlen(n_line) - 1])
+    {
+        printf("correct\n");
+        *rest = NULL;
+        n_line[ft_strlen(n_line) - 1] = '\0';
+        temp = ft_strdup2 (n_line);
+        free (*line);
+        *line = temp;
+    }
+    else 
+    {
+        temp2 = ft_strchr(n_line, '\n') + 1;
+        free (*rest);
+        *rest = ft_strdup2 (temp2);
+        n_line[ft_strchr(n_line, '\n') - n_line] = '\0';
+        temp = ft_strdup2 (*line);
+        free (*line);
+        *line = temp;
+    }
+}
+
+int main ()
+{
+	char *a;
+	char *b;
+
+	a = ft_strdup2 ("abcd");
+	a [3] = '\n';
+	b = ft_strdup2("1234");
+
+	extract2 (&a, &b);
+	printf("a: %s\n", a);
+	printf("b: %s\n", b);
+
+
+
+
+}*/
