@@ -22,6 +22,8 @@ char	*ft_strdup(const char *s1)
 	return (record);
 }
 
+void    extract(char **full, char **rest);
+
 void zero_buf(char *buf)
 {
     int     i;
@@ -34,68 +36,110 @@ void zero_buf(char *buf)
     }
 }
 
-void    extract(char **full, char **rest);
-
 char	*get_next_line(int fd)
 {
+    char           *full;
     static char    *rest;
     char           *buf;
-    char           *full;
     int            read_lines;
-    int test=0;
+    char           *temp;
+    int loop;
 
-    buf = malloc ((BUFFER_SIZE + 1) * sizeof (char));
     full = ft_strdup ("");
     if (!rest)
         rest = ft_strdup ("");
+    
+    temp = ft_strjoin(full, rest);
+    free (full);
+    zero_buf (rest);
+    full = temp;
 
-    if (ft_strchr (rest, '\n'))
+    if (ft_strchr (full, '\n'))
     {
-        free (full);
         extract(&full, &rest);
         return (full);
     }
 
-    full = ft_strjoin(full, rest);
-
-
-    read_lines = read (fd, buf, BUFFER_SIZE);
-    buf[read_lines] = '\0';
-    if (!read_lines)
+    else if (*full == '\n')
     {
-        if (*rest && ft_strchr (rest, '\n')) 
+        // free rest??
+        return ("");
+    }
+
+    buf = malloc ((BUFFER_SIZE + 1) * sizeof (char));
+    if (!buf)
+        return (NULL);
+    loop = 1;
+    while (loop)
+    {    
+        read_lines = read (fd, buf, BUFFER_SIZE);
+        buf[read_lines] = '\0';
+        
+        if (!read_lines)
         {
-            free (full);
-            extract(&full, &rest);
+            free (rest);
+            rest = NULL;
+            free (buf);
+            if (!*full)
+            return (NULL);
+            if (*full != '\0')
             return (full);
         }
-        if (*rest && !ft_strchr (rest, '\n'))
-            return (rest);
-        return (NULL);
-    }
-    full = ft_strjoin(full, buf);
-    while (read_lines && !ft_strchr (buf, '\n') && test < 50)
-    {
-        read_lines = read (fd, buf, BUFFER_SIZE);
-        if (!ft_strchr (buf, '\n'))
+        
+        if (read_lines < BUFFER_SIZE)
         {
-
-            full = ft_strjoin(full, buf);
+            temp = ft_strjoin(full, buf);
+            free (full);
+            full = temp;
+            if (!ft_strchr (buf, '\n'))
+                return (full);
+             else
+            {
+                extract(&full, &rest);
+                rest = ft_strdup("\n");
+                return (full);
+            }
         }
-        test++;
+        
+        if (ft_strchr (buf, '\n'))
+        {
+            temp = ft_strjoin(full, buf);
+            free (full);
+            full = temp;
+            break ;
+        }
 
+        temp = ft_strjoin(full, buf);
+        free (full);
+        full = temp;
+        zero_buf (buf);
     }
-    // full = ft_strjoin(full, buf);
-    extract(&full, &buf);
-    free (rest);
-    rest = ft_strdup(buf);
+
+    extract (&full, &rest);
     free (buf);
     return (full);
 }
 
-// extract the full and rest 
-
 void    extract(char **line, char **rest)
+{
+    char    *n_line;
+    char    *temp;
+    char    *temp2;
+
+    if (!ft_strchr (*line, '\n') || !**line)
+    return ;
+
+    n_line = *line;
+    temp2 = ft_strchr(n_line, '\n') + 1;
+    free (*rest);
+    *rest = ft_strdup (temp2);
+    n_line[ft_strchr(n_line, '\n') - n_line] = '\0';
+    temp = ft_strdup (*line);
+    free (*line);
+    *line = temp;
+}
+
+/* void    extract(char **line, char **rest)
 {
     char    *n_line;
     char    *temp;
@@ -121,18 +165,4 @@ void    extract(char **line, char **rest)
         free (*line);
         *line = temp;
     }
-}
-/*
-
-    temp = ft_strdup (prest);
-    temp[ft_strchr (temp, '\n') - temp] = '\0';
-    new = ft_strdup (temp);
-    free (temp);
-
-    temp_full = ft_strjoin(*full, new);
-    free(*full);
-    *full = temp_full;
-
-    temp2 = ft_strdup(ft_strchr (prest, '\n') + 1);
-    free (prest);
-    *rest = temp2;*/
+} */
