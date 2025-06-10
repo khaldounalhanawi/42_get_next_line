@@ -58,3 +58,22 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	*p = '\0';
 	return (original);
 }
+
+char	*ft_strdup(const char *s1)
+{
+	char	*p;
+	char	*record;
+	int		len;
+
+	len = 0;
+	while (s1[len])
+		len++;
+	p = malloc((len + 1) * (size_t) sizeof(char));
+	if (!p)
+		return (NULL);
+	record = p;
+	while (*s1)
+		*p++ = *s1++;
+	*p = '\0';
+	return (record);
+}

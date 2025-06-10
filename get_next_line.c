@@ -3,166 +3,100 @@
 #include <stdio.h>
 #include <unistd.h>
 
-char	*ft_strdup(const char *s1)
+
+char    *extract(char **rest);
+
+char *free_all(char **full, char **rest)
 {
-	char	*p;
-	char	*record;
-	int		len;
-
-	len = 0;
-	while (s1[len])
-		len++;
-	p = malloc((len + 1) * (size_t) sizeof(char));
-	if (!p)
-		return (NULL);
-	record = p;
-	while (*s1)
-		*p++ = *s1++;
-	*p = '\0';
-	return (record);
-}
-
-void    extract(char **full, char **rest);
-
-void zero_buf(char *buf)
-{
-    int     i;
-
-    i = 0;
-    while (i < BUFFER_SIZE)
+    if (*full)
     {
-        buf[i] = 0;
-        i++;
+        free (*full);
+        *full = NULL;
     }
+    if (*rest)
+    {
+        free (*rest);
+        *rest = NULL;
+    }
+    return (NULL);
 }
+
+int    sticher(char *buf, char **rest)
+{
+    char   *temp;
+
+    temp = ft_strjoin (*rest, buf);
+    if (!temp)
+        return (-1);
+    free (*rest);
+    *rest = NULL;
+    *rest = temp;  
+    return (1);
+}
+
+char    *looper(int fd, char **rest)
+{
+    char    *buf;
+    int     letters;
+
+    buf = malloc ((BUFFER_SIZE + 1)* sizeof (char));
+    if (!buf)
+        return (free_all(rest, NULL));
+    while ((letters = read (fd, buf, BUFFER_SIZE)) > 0)
+    {
+        buf[letters] = '\0';
+        if (sticher (buf, rest) == -1)
+        {
+            free_all (rest, &buf);
+            return (NULL);
+        }
+        if (ft_strchr (buf, '\n'))
+            break;
+    }
+    if ((letters == 0 && **rest == '\0') || (letters < 0))
+        return (free_all(rest, &buf)); // free_all 
+    free_all(NULL,&buf);
+    return (extract (rest));
+}
+
 
 char	*get_next_line(int fd)
 {
-    char           *full;
     static char    *rest;
-    char           *buf;
-    int            read_lines;
-    char           *temp;
-    int loop;
 
-    full = ft_strdup ("");
-    if (!rest)
-        rest = ft_strdup ("");
-    
-    temp = ft_strjoin(full, rest);
-    free (full);
-    zero_buf (rest);
-    full = temp;
-
-    if (ft_strchr (full, '\n'))
-    {
-        extract(&full, &rest);
-        return (full);
-    }
-
-    else if (*full == '\n')
-    {
-        // free rest??
-        return ("");
-    }
-
-    buf = malloc ((BUFFER_SIZE + 1) * sizeof (char));
-    if (!buf)
+    if (fd < 0 || fd > 10024)
         return (NULL);
-    loop = 1;
-    while (loop)
-    {    
-        read_lines = read (fd, buf, BUFFER_SIZE);
-        buf[read_lines] = '\0';
-        
-        if (!read_lines)
-        {
-            free (rest);
-            rest = NULL;
-            free (buf);
-            if (!*full)
+    if (!rest)
+    {
+        rest = ft_strdup ("");
+        if (!rest)
             return (NULL);
-            if (*full != '\0')
-            return (full);
-        }
-        
-        if (read_lines < BUFFER_SIZE)
-        {
-            temp = ft_strjoin(full, buf);
-            free (full);
-            full = temp;
-            if (!ft_strchr (buf, '\n'))
-                return (full);
-             else
-            {
-                extract(&full, &rest);
-                rest = ft_strdup("\n");
-                return (full);
-            }
-        }
-        
-        if (ft_strchr (buf, '\n'))
-        {
-            temp = ft_strjoin(full, buf);
-            free (full);
-            full = temp;
-            break ;
-        }
-
-        temp = ft_strjoin(full, buf);
-        free (full);
-        full = temp;
-        zero_buf (buf);
     }
-
-    extract (&full, &rest);
-    free (buf);
-    return (full);
+    return (looper(fd ,&rest));
 }
 
-void    extract(char **line, char **rest)
+char *extract(char **rest)
 {
-    char    *n_line;
+    char    *clean;
+    char    *income;
+    char    *record;
     char    *temp;
-    char    *temp2;
+    int     new_len;
 
-    if (!ft_strchr (*line, '\n') || !**line)
-    return ;
-
-    n_line = *line;
-    temp2 = ft_strchr(n_line, '\n') + 1;
+    if (!rest)
+        return (NULL);
+    temp = ft_strdup (ft_strchr(*rest, '\n') + 1);
+    if (!temp)
+        return (NULL);
+    income = *rest;
+    new_len = ft_strchr(income, '\n') - income + 1;
+    clean = malloc ((new_len + 1) * sizeof (char));
+    record = clean;
+    while (*income != '\n')
+        *clean ++ = *income++;
+    *clean ++ = *income++;
     free (*rest);
-    *rest = ft_strdup (temp2);
-    n_line[ft_strchr(n_line, '\n') - n_line] = '\0';
-    temp = ft_strdup (*line);
-    free (*line);
-    *line = temp;
+    *rest = NULL;
+    *rest = temp;
+    return (record);
 }
-
-/* void    extract(char **line, char **rest)
-{
-    char    *n_line;
-    char    *temp;
-    char    *temp2;
-
-    if (!ft_strchr (*line, '\n') || !**line)
-        return;
-    n_line = *line;
-    if (*ft_strchr(n_line, '\n') == n_line[ft_strlen(n_line) - 1])
-    {
-        n_line[ft_strlen(n_line) - 1] = '\0';
-        temp = ft_strdup (n_line);
-        free (*line);
-        *line = temp;
-    }
-    else 
-    {
-        temp2 = ft_strchr(n_line, '\n') + 1;
-        free (*rest);
-        *rest = ft_strdup (temp2);
-        n_line[ft_strchr(n_line, '\n') - n_line] = '\0';
-        temp = ft_strdup (*line);
-        free (*line);
-        *line = temp;
-    }
-} */
