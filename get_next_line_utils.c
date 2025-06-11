@@ -1,4 +1,7 @@
 #include "get_next_line.h"
+#include <unistd.h>
+
+char *free_all(char **full, char **rest);
 
 size_t  ft_strlen(const char *str)
 {
@@ -76,4 +79,26 @@ char	*ft_strdup(const char *s1)
 		*p++ = *s1++;
 	*p = '\0';
 	return (record);
+}
+
+char	*searcher(char **rest, char **temp)
+{
+	int     new_len;
+    char    *clean;
+    char    *income;
+    char    *record;
+
+	income = *rest;
+	new_len = ft_strchr(income, '\n') - income + 1;
+    clean = malloc ((new_len + 1) * sizeof (char));
+    if (!clean)
+        return (free_all(temp, rest));
+    record = clean;
+    while (*income != '\n')
+        *clean ++ = *income++;
+    *clean ++ = *income++;
+    *clean = '\0';
+    free_all(rest, NULL);
+    *rest = *temp;
+    return (record);
 }

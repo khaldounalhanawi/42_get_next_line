@@ -3,26 +3,21 @@
 #include <stdio.h>
 #include <unistd.h>
 
-
+char	*searcher(char **rest, char **temp);
 char    *extract(char **rest);
-
-// char *free_all(char **full, char **rest)
-// {
-//     if (*full)
-//     {
-//         free (*full);
-//         *full = NULL;
-//     }
-//     if (*rest)
-//     {
-//         free (*rest);
-//         *rest = NULL;
-//     }
-//     return (NULL);
-// }
 
 char *free_all(char **full, char **rest)
 {
+    if (full && *full)
+    {
+        free (*full);
+        *full = NULL;
+    }
+    if (rest && *rest)
+    {
+        free (*rest);
+        *rest = NULL;
+    }
     return (NULL);
 }
 
@@ -64,7 +59,6 @@ char    *looper(int fd, char **rest)
     return (extract (rest));
 }
 
-
 char	*get_next_line(int fd)
 {
     static char    *rest;
@@ -82,11 +76,11 @@ char	*get_next_line(int fd)
 
 char *extract(char **rest)
 {
-    char    *clean;
-    char    *income;
-    char    *record;
+    // char    *clean;
+    // char    *income;
+    // char    *record;
     char    *temp;
-    int     new_len;
+    // int     new_len;
 
     if (!rest)
         return (NULL);
@@ -94,23 +88,27 @@ char *extract(char **rest)
     {
         temp = ft_strdup (*rest);
         if (!temp)
-            return (free_all(rest)); // free rest as well
-        free (*rest);
-        rest = NULL;
+            return (free_all(rest, NULL));
+        free_all(rest, NULL);
         return (temp);
     }
     temp = ft_strdup (ft_strchr(*rest, '\n') + 1);
     if (!temp)
-        return (free_all(rest));
-    income = *rest;
-    new_len = ft_strchr(income, '\n') - income + 1;
-    clean = malloc ((new_len + 1) * sizeof (char));
-    record = clean;
-    while (*income != '\n')
-        *clean ++ = *income++;
-    *clean ++ = *income++;
-    free (*rest);
-    *rest = NULL;
-    *rest = temp;
-    return (record);
+        return (free_all(rest, NULL));
+    // income = *rest;
+    ///
+    return (searcher(rest, &temp));
+
+    // new_len = ft_strchr(income, '\n') - income + 1;
+    // clean = malloc ((new_len + 1) * sizeof (char));
+    // if (!clean)
+    //     return (free_all(&temp, rest));
+    // record = clean;
+    // while (*income != '\n')
+    //     *clean ++ = *income++;
+    // *clean ++ = *income++;
+    // *clean = '\0';
+    // free_all(rest, NULL);
+    // *rest = temp;
+    // return (record);
 }

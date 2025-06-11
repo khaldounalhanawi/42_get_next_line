@@ -8,7 +8,7 @@ int main()
 {
     char	*final_line;
 
-    int	fd = open ("tst.txt", O_RDONLY);
+    int	fd = open ("giant_line.txt", O_RDONLY);
     final_line = get_next_line(fd);
     printf(">%s<\n\n", final_line);
 
