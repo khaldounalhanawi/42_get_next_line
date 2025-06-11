@@ -1,114 +1,106 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kalhanaw <kalhanaw@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/11 14:42:40 by kalhanaw          #+#    #+#             */
+/*   Updated: 2025/06/11 15:18:00 by kalhanaw         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
 #include <stdio.h>
 #include <unistd.h>
 
 char	*searcher(char **rest, char **temp);
-char    *extract(char **rest);
+char	*extract(char **rest);
 
-char *free_all(char **full, char **rest)
+char	*free_all(char **full, char **rest)
 {
-    if (full && *full)
-    {
-        free (*full);
-        *full = NULL;
-    }
-    if (rest && *rest)
-    {
-        free (*rest);
-        *rest = NULL;
-    }
-    return (NULL);
+	if (full && *full)
+	{
+		free (*full);
+		*full = NULL;
+	}
+	if (rest && *rest)
+	{
+		free (*rest);
+		*rest = NULL;
+	}
+	return (NULL);
 }
 
-int    sticher(char *buf, char **rest)
+int	sticher(char *buf, char **rest)
 {
-    char   *temp;
+	char	*temp;
 
-    temp = ft_strjoin (*rest, buf);
-    if (!temp)
-        return (-1);
-    free (*rest);
-    *rest = NULL;
-    *rest = temp;  
-    return (1);
+	temp = ft_strjoin (*rest, buf);
+	if (!temp)
+		return (-1);
+	free (*rest);
+	*rest = NULL;
+	*rest = temp;
+	return (1);
 }
 
-char    *looper(int fd, char **rest)
+char	*looper(int fd, char **rest)
 {
-    char    *buf;
-    int     letters;
+	char	*buf;
+	int		letters;
 
-    buf = malloc ((BUFFER_SIZE + 1)* sizeof (char));
-    if (!buf)
-        return (free_all(rest, NULL));
-    while ((letters = read (fd, buf, BUFFER_SIZE)) > 0)
-    {
-        buf[letters] = '\0';
-        if (sticher (buf, rest) == -1)
-        {
-            free_all (rest, &buf);
-            return (NULL);
-        }
-        if (ft_strchr (buf, '\n'))
-            break;
-    }
-    if ((letters == 0 && **rest == '\0') || (letters < 0))
-        return (free_all(rest, &buf));
-    free_all(NULL,&buf);
-    return (extract (rest));
+	buf = malloc ((BUFFER_SIZE + 1) * sizeof (char));
+	if (!buf)
+		return (free_all(rest, NULL));
+	letters = read (fd, buf, BUFFER_SIZE);
+	while (letters > 0)
+	{
+		buf[letters] = '\0';
+		if (sticher (buf, rest) == -1)
+			return (free_all (rest, &buf));
+		if (ft_strchr (buf, '\n'))
+			break ;
+		letters = read (fd, buf, BUFFER_SIZE);
+	}
+	if ((letters == 0 && **rest == '\0') || (letters < 0))
+		return (free_all(rest, &buf));
+	free_all(NULL, &buf);
+	return (extract (rest));
 }
 
 char	*get_next_line(int fd)
 {
-    static char    *rest;
+	static char	*rest;
 
-    if (fd < 0 || fd > 10024)
-        return (NULL);
-    if (!rest)
-    {
-        rest = ft_strdup ("");
-        if (!rest)
-            return (NULL);
-    }
-    return (looper(fd ,&rest));
+	if (fd < 0 || fd > 10024)
+		return (NULL);
+	if (!rest)
+	{
+		rest = ft_strdup ("");
+		if (!rest)
+			return (NULL);
+	}
+	return (looper(fd, &rest));
 }
 
-char *extract(char **rest)
+char	*extract(char **rest)
 {
-    // char    *clean;
-    // char    *income;
-    // char    *record;
-    char    *temp;
-    // int     new_len;
+	char	*temp;
 
-    if (!rest)
-        return (NULL);
-    if (!ft_strchr(*rest, '\n'))
-    {
-        temp = ft_strdup (*rest);
-        if (!temp)
-            return (free_all(rest, NULL));
-        free_all(rest, NULL);
-        return (temp);
-    }
-    temp = ft_strdup (ft_strchr(*rest, '\n') + 1);
-    if (!temp)
-        return (free_all(rest, NULL));
-    // income = *rest;
-    ///
-    return (searcher(rest, &temp));
-
-    // new_len = ft_strchr(income, '\n') - income + 1;
-    // clean = malloc ((new_len + 1) * sizeof (char));
-    // if (!clean)
-    //     return (free_all(&temp, rest));
-    // record = clean;
-    // while (*income != '\n')
-    //     *clean ++ = *income++;
-    // *clean ++ = *income++;
-    // *clean = '\0';
-    // free_all(rest, NULL);
-    // *rest = temp;
-    // return (record);
+	if (!rest)
+		return (NULL);
+	if (!ft_strchr(*rest, '\n'))
+	{
+		temp = ft_strdup (*rest);
+		if (!temp)
+			return (free_all(rest, NULL));
+		free_all(rest, NULL);
+		return (temp);
+	}
+	temp = ft_strdup (ft_strchr(*rest, '\n') + 1);
+	if (!temp)
+		return (free_all(rest, NULL));
+	return (searcher(rest, &temp));
 }

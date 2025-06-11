@@ -1,18 +1,30 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: kalhanaw <kalhanaw@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/11 15:18:41 by kalhanaw          #+#    #+#             */
+/*   Updated: 2025/06/11 15:20:03 by kalhanaw         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 #include <unistd.h>
 
-char *free_all(char **full, char **rest);
+char	*free_all(char **full, char **rest);
 
-size_t  ft_strlen(const char *str)
+size_t	ft_strlen(const char *str)
 {
-    size_t  i;
+	size_t	i;
 
-    i = 0;
-    while (str[i])
-    {
-        i++;
-    }
-    return (i);
+	i = 0;
+	while (str[i])
+	{
+		i++;
+	}
+	return (i);
 }
 
 char	*ft_strchr(const char *s, int c)
@@ -83,22 +95,22 @@ char	*ft_strdup(const char *s1)
 
 char	*searcher(char **rest, char **temp)
 {
-	int     new_len;
-    char    *clean;
-    char    *income;
-    char    *record;
+	int		new_len;
+	char	*clean;
+	char	*income;
+	char	*record;
 
 	income = *rest;
 	new_len = ft_strchr(income, '\n') - income + 1;
-    clean = malloc ((new_len + 1) * sizeof (char));
-    if (!clean)
-        return (free_all(temp, rest));
-    record = clean;
-    while (*income != '\n')
-        *clean ++ = *income++;
-    *clean ++ = *income++;
-    *clean = '\0';
-    free_all(rest, NULL);
-    *rest = *temp;
-    return (record);
+	clean = malloc ((new_len + 1) * sizeof (char));
+	if (!clean)
+		return (free_all(temp, rest));
+	record = clean;
+	while (*income != '\n')
+		*clean ++ = *income++;
+	*clean ++ = *income++;
+	*clean = '\0';
+	free_all(rest, NULL);
+	*rest = *temp;
+	return (record);
 }
