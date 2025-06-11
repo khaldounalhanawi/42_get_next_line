@@ -6,18 +6,23 @@
 
 char    *extract(char **rest);
 
+// char *free_all(char **full, char **rest)
+// {
+//     if (*full)
+//     {
+//         free (*full);
+//         *full = NULL;
+//     }
+//     if (*rest)
+//     {
+//         free (*rest);
+//         *rest = NULL;
+//     }
+//     return (NULL);
+// }
+
 char *free_all(char **full, char **rest)
 {
-    if (*full)
-    {
-        free (*full);
-        *full = NULL;
-    }
-    if (*rest)
-    {
-        free (*rest);
-        *rest = NULL;
-    }
     return (NULL);
 }
 
@@ -54,7 +59,7 @@ char    *looper(int fd, char **rest)
             break;
     }
     if ((letters == 0 && **rest == '\0') || (letters < 0))
-        return (free_all(rest, &buf)); // free_all 
+        return (free_all(rest, &buf));
     free_all(NULL,&buf);
     return (extract (rest));
 }
@@ -85,9 +90,18 @@ char *extract(char **rest)
 
     if (!rest)
         return (NULL);
+    if (!ft_strchr(*rest, '\n'))
+    {
+        temp = ft_strdup (*rest);
+        if (!temp)
+            return (free_all(rest)); // free rest as well
+        free (*rest);
+        rest = NULL;
+        return (temp);
+    }
     temp = ft_strdup (ft_strchr(*rest, '\n') + 1);
     if (!temp)
-        return (NULL);
+        return (free_all(rest));
     income = *rest;
     new_len = ft_strchr(income, '\n') - income + 1;
     clean = malloc ((new_len + 1) * sizeof (char));
