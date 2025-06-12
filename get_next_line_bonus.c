@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kalhanaw <kalhanaw@student.42.fr>          +#+  +:+       +#+        */
+/*   By: kalhanaw <kalhanaw@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/11 14:42:40 by kalhanaw          #+#    #+#             */
-/*   Updated: 2025/06/11 16:03:58 by kalhanaw         ###   ########.fr       */
+/*   Created: 2025/06/11 16:00:00 by kalhanaw          #+#    #+#             */
+/*   Updated: 2025/06/11 16:02:57 by kalhanaw         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,17 +70,17 @@ char	*looper(int fd, char **rest)
 
 char	*get_next_line(int fd)
 {
-	static char	*rest;
+	static char	*rest[1024];
 
-	if (fd < 0 || fd > 10024)
+	if (fd < 0 || fd > 1024)
 		return (NULL);
-	if (!rest)
+	if (!rest[fd])
 	{
-		rest = ft_strdup ("");
-		if (!rest)
+		rest[fd] = ft_strdup ("");
+		if (!rest[fd])
 			return (NULL);
 	}
-	return (looper(fd, &rest));
+	return (looper(fd, &rest[fd]));
 }
 
 char	*extract(char **rest)
